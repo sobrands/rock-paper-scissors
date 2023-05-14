@@ -21,15 +21,81 @@ function playRound(playerSelection, computerSelection) {
     return "DRAW";
 }
 
-function game() {
-    const playerSelection = prompt("What shall you throw now?").toLowerCase();
+function displayResult(result) {
+    // Display results 
+    const playerScoreViz = document.querySelector('p#player');
+    const computerScoreViz = document.querySelector('p#computer');
+
+    switch (result) {
+        case "WIN":
+            playerScore++;
+            playerScoreViz.textContent += "O";
+            computerScoreViz.textContent += "X";
+            break;
+        case "LOSE":
+            computerScore++;
+            playerScoreViz.textContent += "X";
+            computerScoreViz.textContent += "O";
+            break;
+        case "DRAW":
+            playerScoreViz.textContent += "-";
+            computerScoreViz.textContent += "-";
+            break;
+        default:
+            break;
+    }
+}
+
+function game(e) {
+    if (!e.target.id) return;
+    gameCount++;
     const computerSelection = getComputerChoice().toLowerCase();
-    console.log(playRound(playerSelection, computerSelection));
+    const result = playRound(e.target.id.toLowerCase(), computerSelection);
+
+    const player = document.querySelector('span#player');
+    player.textContent = `Player: ${e.target.id}`;
+
+    const computer = document.querySelector('span#computer');
+    computer.textContent = `Computer: ${computerSelection}`;
+
+    displayResult(result); 
+}
+
+function disableButtons() {
+    document.querySelectorAll('button').forEach(button => {
+        if (button.className === "handshape") button.disabled = true;
+    });
+}
+
+function reset(e) {
+    window.location.reload();
+}
+
+function addReplayButton() {
+    replay.textContent = "Play Again?";
+    replay.classList.add("replay");
+    document.querySelector('body').appendChild(replay);
+    document.querySelector('button.replay').addEventListener('click', reset);
 }
 
 const handshapes = ["Rock", "Paper", "Scissors"];
+let playerScore = 0;
+let computerScore = 0;
+let gameCount = 0;
 
-for (let i=0; i<5; i++) 
-{
-    game();
-}
+const buttons = document.querySelectorAll('.buttons');
+const result = document.querySelector('h1.result');
+const replay = document.createElement('button');
+
+buttons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        game(e);
+        if (gameCount === 5) {
+            if (playerScore > computerScore) result.textContent += "PLAYER WINS";
+            else if (computerScore > playerScore) result.textContent += "COMPUTER WINS";
+            else result.textContent += "COMPLETE DRAW"; 
+            disableButtons();
+            addReplayButton();
+        }
+    });
+});
